@@ -16,7 +16,8 @@ namespace TaskManagement
     {
         Pending,
         Overdue,
-        Completed
+        Completed,
+        ToDo
     }
     public class Task
     {
@@ -26,29 +27,43 @@ namespace TaskManagement
         public string Title;
         public Priority PriorityLevel;
         public Status Status;
-        public int taskID { get; private set; }
 
-        public Task(string dueDate, string title, Priority priorityLevel, Status status)
-        {
-            DueDate = ConvertStringToDateTime(dueDate);
+        public int taskID { get; private set; }
+        public DateTime DateAdded { get; private set; }
+
+        public Task(string title, string dueDate, Priority priorityLevel, Status status)
+        {   
             Title = title;
+            DueDate = ConvertStringToDateTime(dueDate);
             PriorityLevel = priorityLevel;
-            Status = Status.Pending;
+            Status = status;
+
             taskID = nextTaskID;
+            DateAdded = DateTime.Now;
 
             nextTaskID++;
         }
-        static DateTime ConvertStringToDateTime(string dateInString)
+        public Task(string title, string dueDate)
         {
+            Title = title;
+            DueDate = ConvertStringToDateTime(dueDate);
+
+            PriorityLevel = Priority.Medium;
+            Status = Status.ToDo;
+            DateAdded = DateTime.Now;
+            taskID = nextTaskID;
 
 
-            string format1 = "MM/dd/yyyy HH:mm:ss";
-            string format2 = "MM/dd HH:mm:ss";
+            nextTaskID++;
+        }
+
+        static DateTime ConvertStringToDateTime(string dateInString)
+        { 
+            string format1 = "MM/dd/yyyy HH:mm";
+            string format2 = "MM/dd HH:mm";
 
             if(HasYearInDueDate(dateInString)) return DateTime.ParseExact(dateInString, format1,CultureInfo.InvariantCulture);
             return DateTime.ParseExact(dateInString, format2, CultureInfo.InvariantCulture);
-            
-
         }
         static bool HasYearInDueDate(string dateInString)
         {
@@ -58,9 +73,7 @@ namespace TaskManagement
             {
                 if (dateInString[i] == '/') countOfSlashes++;
             }
-            
             return countOfSlashes>1;
-
         }
 
     }
