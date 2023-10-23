@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace TaskManagement
 {
-    class User
+    public class User
     {
         public string Username;
         private string password;
-        public List<Task> Tasks;
+        public List<Task> Tasks = new();
 
     }
 }
