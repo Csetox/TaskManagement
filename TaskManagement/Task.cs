@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace TaskManagement
 {
@@ -16,27 +17,27 @@ namespace TaskManagement
         Overdue,
         Completed
     }
-    class Task
+    public class Task
     {
         public DateTime DueDate;
         public string Title;
         public Priority PriorityLevel;
         public Status Status;
 
-        public Task(DateTime dueDate, string title, Priority priorityLevel, Status status)
+        public Task(string dueDate, string title, Priority priorityLevel, Status status)
         {
-            DueDate = dueDate;
+            DueDate = ConvertStringToDateTime(dueDate);
             Title = title;
             PriorityLevel = priorityLevel;
-            Status = status;
+            Status = Status.Pending; ;
         }
-
-        public void AddTask()
+        static DateTime ConvertStringToDateTime(string dateInString)
         {
+            string format = "MMMM dd, yyyy HH:mm:ss";
+
+            return DateTime.ParseExact(dateInString, format,CultureInfo.InvariantCulture);
 
         }
-
-        public void 
 
     }
 
