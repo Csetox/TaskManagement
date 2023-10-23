@@ -56,6 +56,30 @@ namespace TaskManagement
 
             nextTaskID++;
         }
+        public Task(string title, string dueDate, Priority priorityLevel)
+        {
+            Title = title;
+            DueDate = ConvertStringToDateTime(dueDate);
+            PriorityLevel = priorityLevel;
+
+            Status = Status.ToDo;
+            taskID = nextTaskID;
+            DateAdded = DateTime.Now;
+
+            nextTaskID++;
+        }
+        public Task(string title, string dueDate, Status status)
+        {
+            Title = title;
+            DueDate = ConvertStringToDateTime(dueDate);
+            Status = status;
+
+            PriorityLevel = Priority.Medium;
+            taskID = nextTaskID;
+            DateAdded = DateTime.Now;
+
+            nextTaskID++;
+        }
 
         static DateTime ConvertStringToDateTime(string dateInString)
         { 
