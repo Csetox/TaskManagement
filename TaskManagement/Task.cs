@@ -20,15 +20,16 @@ namespace TaskManagement
         ToDo
     }
     public class Task
-    {
-        static int nextTaskID = 0;
-
-        public DateTime DueDate;
+    { 
         public string Title;
+        public DateTime DueDate;
         public Priority PriorityLevel;
         public Status Status;
+        public string? Description { get; set; }
 
         public int taskID { get; private set; }
+        static int nextTaskID = 0;
+
         public DateTime DateAdded { get; private set; }
 
         public Task(string title, string dueDate, Priority priorityLevel, Status status)

@@ -24,7 +24,8 @@ namespace TaskManagement
         }
 
         /// <summary>
-        /// Sorts the Tasks by the SortTypes
+        /// Compares the Tasks by the SortTypes.
+        /// This function is the implementation of the IComparer<T> Compare function.
         /// </summary>
         /// <param name="task1"></param>
         /// <param name="task2"></param>
