@@ -12,4 +12,11 @@ namespace TaskManagement
         public MoreThanOneArgumentException(string message) : base(message){}
 
     }
+    public class UserDoesNotExists : Exception
+    {
+        public UserDoesNotExists(){}
+
+        public UserDoesNotExists(string mesage) : base(mesage) {}
+
+    }
 }
