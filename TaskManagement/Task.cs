@@ -3,9 +3,13 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Collections.Specialized;
+using System.Data;
+using Org.BouncyCastle.Tls;
+using MySql.Data.MySqlClient;
 
 namespace TaskManagement
 {
+
     public enum Priority
     {
         Low,
@@ -20,7 +24,9 @@ namespace TaskManagement
         ToDo
     }
     public class Task
-    { 
+    {
+        public int UserID { get; private set; }
+
         public string Title;
         public DateTime DueDate;
         public Priority PriorityLevel;
@@ -44,10 +50,12 @@ namespace TaskManagement
 
             nextTaskID++;
         }
-        public Task(string title, string dueDate)
+        public Task(string title, string dueDate, int userId)
         {
             Title = title;
             DueDate = ConvertStringToDateTime(dueDate);
+            UserID = userId;
+
 
             PriorityLevel = Priority.Medium;
             Status = Status.ToDo;
@@ -56,6 +64,11 @@ namespace TaskManagement
 
 
             nextTaskID++;
+
+            AddTaskToDatabase(title, taskID,DueDate,0);
+
+
+
         }
         public Task(string title, string dueDate, Priority priorityLevel)
         {
@@ -99,6 +112,32 @@ namespace TaskManagement
                 if (dateInString[i] == '/') countOfSlashes++;
             }
             return countOfSlashes>1;
+        }
+
+        private static void AddTaskToDatabase(string title, int taskid,DateTime duedate,int userid)
+        {
+            using (MySqlConnection connection = new MySqlConnection("server=localhost;user=taskUser;database=taskmanagement;password=admin123;"))
+            { 
+                string query = "INSERT INTO tasks (TaskID,Title,DueDate,DateAdded,UserID) VALUES (@taskid,@title,@duedate,@dateadded,@userid)";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@taskid", taskid);
+                    command.Parameters.AddWithValue("@title", title);
+                    command.Parameters.AddWithValue("@duedate", duedate);
+                    command.Parameters.AddWithValue("@dateadded", DateTime.Now);
+                    command.Parameters.AddWithValue("@userid", userid);
+
+                    connection.Open();
+
+                    int res = command.ExecuteNonQuery();
+
+                    Console.WriteLine(res);
+
+                }
+
+            }
+
         }
 
     }
