@@ -70,38 +70,69 @@ namespace TaskManagement
 
         public static void LoginProcess()
         {
+            Console.WriteLine("Do you have an account? (y/n)");
+
+            if (!UserInputYesOrNo())
+            {
+                Console.WriteLine("Do you want to register one?");
+
+                if (!UserInputYesOrNo())
+                {
+                    Console.WriteLine("The app is exiting.");
+                    Environment.Exit(0);
+                }
+                else Register();
+
+            }
+
             Console.WriteLine("Username: ");
 
             string username = Console.ReadLine();
-            try
-            {
-                if (!CheckIfUserExists(username))
-                {
-                    throw new UserDoesNotExists("This user doesn't exists. Do you want to register a new user? [y/n]");
 
+            Console.WriteLine("Password: ");
 
-                }
-            }catch(UserDoesNotExists e)
-            {
-                Console.WriteLine(e.Message);
-
-                char registerOrNot = (char)Console.Read();
-                do
-                {
-                    if (registerOrNot.ToString().ToLower()[0] == 'y') Register();
-
-                    if(registerOrNot.ToString().ToLower()[0] == 'n') Console.WriteLine("The app is exiting...");
-
-                    if (registerOrNot.ToString().ToLower()[0] != 'y' && registerOrNot.ToString().ToLower()[0] != 'n') Console.WriteLine("Press 'y' or 'n'!");
-
-                } while (registerOrNot != 'y' || registerOrNot != 'n');
-            }
-
+            string passwordAttempt = Console.ReadLine();
 
 
         }
+        
+        private static bool UserInputYesOrNo()
+        {
+            ConsoleKeyInfo consoleKey;
+            char userInput;
+
+            do
+            {
+                consoleKey = Console.ReadKey();
+                Erase();
+
+                userInput = char.ToLower(consoleKey.KeyChar);
+
+                if (userInput == 'y') return true;
+
+                if (userInput == 'n') return false;
+
+                if (userInput != 'y' && userInput != 'n') Console.WriteLine("Press 'y' or 'n'!");
+
+            } while (userInput != 'y' && userInput != 'n');
+            
+            return false;
+        }
         static void Register()
         {
+
+        }
+
+        private static void Erase()
+        {
+            Console.SetCursorPosition(0, Console.CursorTop);
+
+            // Erase the line by overwriting it with spaces
+            Console.Write(new string(' ', Console.WindowWidth));
+
+            // Move the cursor back to the beginning
+            Console.SetCursorPosition(0, Console.CursorTop);
+
 
         }
 
