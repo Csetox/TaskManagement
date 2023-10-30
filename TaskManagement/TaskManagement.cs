@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using MySql.Data.MySqlClient;
 
 namespace TaskManagement
 {
-
-
     public class TaskManagement
     {
         public void AddTask(User user, Task task)
@@ -72,30 +71,43 @@ namespace TaskManagement
 
 
 
-        static void Main()
+        public static void Run()
         {
+            //Console.WriteLine("Password:\n");
+            // string passwd = Console.ReadLine();
+
+            //Login.GetUsername("foo");
+
+
             User Csetox = new User();
             User Foo = new User();
 
             TaskManagement TaskManager = new();
 
-            TaskManager.AddTask(Csetox, new Task("foo", "10/23/2024 16:20"));
-            TaskManager.AddTask(Csetox, new Task("bar", "10/23 16:20"));
+            //TaskManager.AddTask(Csetox, new Task("foo", "10/23/2024 16:20",0));
+            //TaskManager.AddTask(Csetox, new Task("bar", "10/23 16:20"));
 
+           // TaskManager.SortTasks(Csetox, SortTypes.ByDueDate);
             // Logic.AddTask(Foo, new Task("10/23/2024 16:20", "foo", Priority.Medium, Status.Pending));
             //Logic.AddTask(Foo, new Task("10/23/2024 16:20", "bar", Priority.Medium, Status.Pending));
 
-            //Logic.ListTasks(Csetox);
+            //TaskManager.ListTasks(Csetox);
             //Console.WriteLine();
 
-            TaskManager.SortTasks(Csetox, SortTypes.ByName);
+            //TaskManager.SortTasks(Csetox, SortTypes.ByName);
 
-            Guid g = Guid.NewGuid(); 
-            Console.WriteLine(g);
-            Console.WriteLine(Guid.NewGuid());
+            //MySqlConnection Connection = new MySqlConnection("server=TaskManagement;user=root;database=taskmanagement;port=3306;password=admin123");
+
+           //DatabaseConnection.DatabaseQuery();
 
 
         }
 
+
     }
+
+    
 }
+
+    
+

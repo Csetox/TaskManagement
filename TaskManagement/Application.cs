@@ -12,9 +12,11 @@ namespace TaskManagement
         static void Main(string[] args)
         {
 
-            char registerOrNot = (char)Console.Read();
 
-            Console.WriteLine(registerOrNot);
+
+
+            //Login.LoginProcess();
+
 
             //TaskManagement.Run();
 
