@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using MySql.Data.MySqlClient;
 
 namespace TaskManagement
@@ -14,7 +15,7 @@ namespace TaskManagement
         {
             List<string> usernames = new();
 
-            using (MySqlConnection connection = new MySqlConnection(DatabaseConnection.ConnectionString))
+            using (MySqlConnection connection = new MySqlConnection(Database.ConnectionString))
             {
                 connection.Open();
                 string query = "SELECT Username FROM Users";
@@ -41,32 +42,7 @@ namespace TaskManagement
             }
             return false;
         }
-        static string GetHiddenInput()
-        {
-            string input = "";
-            ConsoleKeyInfo keyInfo;
 
-            do
-            {
-                keyInfo = Console.ReadKey(intercept: true);
-
-                if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
-                {
-                    input += keyInfo.KeyChar;
-                    Console.Write("*"); // Display an asterisk for each character
-                }
-                else
-                {
-                    if (keyInfo.Key == ConsoleKey.Backspace && input.Length > 0)
-                    {
-                        input = input.Substring(0, input.Length - 1);
-                        Console.Write("\b \b"); // Erase the character from the screen
-                    }
-                }
-            }
-            while (keyInfo.Key != ConsoleKey.Enter);
-            return input;
-        }
 
         public static void LoginProcess()
         {
@@ -74,7 +50,7 @@ namespace TaskManagement
 
             if (!UserInputYesOrNo())
             {
-                Console.WriteLine("Do you want to register one?");
+                Console.WriteLine("Do you want to register one? (y/n)");
 
                 if (!UserInputYesOrNo())
                 {
@@ -91,7 +67,7 @@ namespace TaskManagement
 
             Console.WriteLine("Password: ");
 
-            string passwordAttempt = Console.ReadLine();
+            string passwordAttempt = GetHiddenInput();
 
 
         }
@@ -120,6 +96,32 @@ namespace TaskManagement
         }
         static void Register()
         {
+            Console.WriteLine("The username you want to use: ");
+
+            string username = Console.ReadLine();
+
+            Console.WriteLine("The password you want to use: ");
+
+            string password1 = GetHiddenInput();
+
+            Console.WriteLine("Repeat the password: ");
+
+            string password2 = GetHiddenInput();
+
+            if (password1 != password2)
+            {
+                Console.WriteLine("The passwords don't match.\n Do you want to try again? (y/n)");
+
+                if (UserInputYesOrNo()) Register();
+                else
+                {
+                    Console.WriteLine("The app is exiting...");
+                    Environment.Exit(0);
+                }
+            }
+
+            bool foo =Database.RegisterNewUser(username, password1);
+            Console.WriteLine(foo);
 
         }
 
@@ -134,6 +136,41 @@ namespace TaskManagement
             Console.SetCursorPosition(0, Console.CursorTop);
 
 
+        }
+
+        private static bool ValidateUsernameAndPassword(string username, string password)
+        {
+
+
+
+            return false;
+        }
+
+        static string GetHiddenInput()
+        {
+            string input = "";
+            ConsoleKeyInfo keyInfo;
+
+            do
+            {
+                keyInfo = Console.ReadKey(intercept: true);
+
+                if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                {
+                    input += keyInfo.KeyChar;
+                    Console.Write("*"); // Display an asterisk for each character
+                }
+                else
+                {
+                    if (keyInfo.Key == ConsoleKey.Backspace && input.Length > 0)
+                    {
+                        input = input.Substring(0, input.Length - 1);
+                        Console.Write("\b \b"); // Erase the character from the screen
+                    }
+                }
+            }
+            while (keyInfo.Key != ConsoleKey.Enter);
+            return input;
         }
 
     }
