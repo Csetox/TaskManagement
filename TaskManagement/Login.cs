@@ -63,9 +63,22 @@ namespace TaskManagement
             Console.WriteLine("Repeat the password: ");
             string password2 = GetHiddenInput();
 
+            if (DoesUserExists(username))
+            {
+                Console.WriteLine("Username already taken.\nDo you want to try again? (y/n)");
+
+                if (UserInputYesOrNo()) Register();
+                else
+                {
+                    Console.WriteLine("The app is exiting...");
+                    Environment.Exit(0);
+                }
+            }
+
+
             if (password1 != password2)
             {
-                Console.WriteLine("The passwords don't match.\n Do you want to try again? (y/n)");
+                Console.WriteLine("The passwords don't match.\nDo you want to try again? (y/n)");
 
                 if (UserInputYesOrNo()) Register();
                 else
