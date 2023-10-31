@@ -149,5 +149,38 @@ namespace TaskManagement
                 }
             }
         }
+        /// <summary>
+        /// This function gets called from the constructor of the Task class. It receives the parameters, and adds it to the database.
+        /// TODO: Priority, Status etc. 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="taskid"></param>
+        /// <param name="duedate"></param>
+        /// <param name="userid"></param>
+        public static void AddTaskToDatabase(string title, int taskid, DateTime duedate, int userid)
+        {
+            using (MySqlConnection connection = new MySqlConnection("server=localhost;user=taskUser;database=taskmanagement;password=admin123;"))
+            {
+                string query = "INSERT INTO tasks (Title,DueDate,DateAdded,UserID) VALUES (@title,@duedate,@dateadded,@userid)";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    //command.Parameters.AddWithValue("@taskid", taskid);
+                    command.Parameters.AddWithValue("@title", title);
+                    command.Parameters.AddWithValue("@duedate", duedate);
+                    command.Parameters.AddWithValue("@dateadded", DateTime.Now);
+                    command.Parameters.AddWithValue("@userid", userid);
+
+                    connection.Open();
+
+                    int res = command.ExecuteNonQuery();
+
+                    Console.WriteLine(res);
+
+                }
+
+            }
+
+        }
     }
 }
