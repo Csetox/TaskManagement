@@ -51,7 +51,7 @@ namespace TaskManagement
             {
                 userID = new Random().Next(1, 1000000);
 
-            }while (!IsUserIDTaken(userID));
+            }while (IsUserIDTaken(userID));
 
             using(MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
@@ -67,8 +67,6 @@ namespace TaskManagement
 
                     int res = command.ExecuteNonQuery();
 
-                    Console.WriteLine(res);
-
                     if (res == 1) return true;
 
                 }
@@ -76,6 +74,12 @@ namespace TaskManagement
 
             return false;
         }
+        /// <summary>
+        /// Checks if the given userID is already taken.
+        /// Selects all userIDs from the database, and checks if the list of those contain the given userID.
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns>True, if the userID is taken.</returns>
         private static bool IsUserIDTaken(int userID)
         {
             List<int> allUserIDs = new();
@@ -105,8 +109,45 @@ namespace TaskManagement
 
             return false;
         }
+        public static bool CheckPasswordForUser(string username, string password)
+        {
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT PasswordHash FROM Users WHERE Username=\"{username}\";";
 
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
 
+                    var passwd = command.ExecuteScalar();
 
+                    if (passwd.ToString() == password) return true;
+
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Gets the unique UserID associated to every user. 
+        /// This function only gets called when the user is logged in, so no need to authenticate the user.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns>The UserID of the User that has the username.</returns>
+        public static int GetUserID(string username)
+        {
+            using(MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT UserID FROM Users WHERE Username=\"{username}\";";
+
+                using(MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+
+                    var userID = command.ExecuteScalar();
+
+                    return (int)userID;
+                }
+            }
+        }
     }
 }
