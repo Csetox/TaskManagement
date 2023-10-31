@@ -12,11 +12,11 @@ namespace TaskManagement
         public MoreThanOneArgumentException(string message) : base(message){}
 
     }
-    public class UserDoesNotExists : Exception
+    public class InvalidLoginCredentialsException : Exception
     {
-        public UserDoesNotExists(){}
+        public InvalidLoginCredentialsException(){}
 
-        public UserDoesNotExists(string mesage) : base(mesage) {}
+        public InvalidLoginCredentialsException(string mesage) : base(mesage) {}
 
     }
 }

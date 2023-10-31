@@ -13,8 +13,15 @@ namespace TaskManagement
     {
         public string Username;
         private string password;
-        public int userID;
+        public int UserID;
         public List<Task> Tasks = new();
+
+        public User(string username,int userid)
+        {
+            Username = username;
+            UserID = userid;
+        }
+
 
     }
 

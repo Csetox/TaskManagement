@@ -13,12 +13,7 @@ namespace TaskManagement
         {
 
 
-
-
-            //Login.LoginProcess();
-
-
-            //TaskManagement.Run();
+            TaskManagement.Run();
 
 
         }

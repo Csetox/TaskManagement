@@ -25,7 +25,7 @@ namespace TaskManagement
     }
     public class Task
     {
-        public int UserID { get; private set; }
+        public int UserID { get; set; }
 
         public string Title;
         public DateTime DueDate;
@@ -34,7 +34,7 @@ namespace TaskManagement
         public string? Description { get; set; }
 
         public int taskID { get; private set; }
-        static int nextTaskID = 0;
+        static int nextTaskID = 2;
 
         public DateTime DateAdded { get; private set; }
 
@@ -65,7 +65,10 @@ namespace TaskManagement
 
             nextTaskID++;
 
-            AddTaskToDatabase(title, taskID,DueDate,0);
+
+            Console.WriteLine(UserID);
+
+            AddTaskToDatabase(title, taskID,DueDate,UserID);
 
 
 
