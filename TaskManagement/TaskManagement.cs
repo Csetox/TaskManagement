@@ -10,9 +10,26 @@ namespace TaskManagement
 {
     public class TaskManagement
     {
-        public void AddTask(User user, Task task)
+        /// <summary>
+        /// Handles the user input of AddTask.
+        /// Gets the task's name, due date and other things.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="task"></param>
+        public void AddTask(User user)
         {
-            user.Tasks.Add(task);
+            string nameOfTask;
+            string dueDateString;
+            Console.WriteLine("Name of the task:");
+
+            nameOfTask = Console.ReadLine();
+
+            Console.WriteLine("When is it due? (MM/dd/yyyy HH:mm) / (MM/dd HH:mm)");
+
+            dueDateString = Console.ReadLine();
+
+            new Task(nameOfTask, dueDateString, user.UserID);
+          //  user.Tasks.Add(task);
         }
 
         /// <summary>
@@ -78,11 +95,13 @@ namespace TaskManagement
 
             TaskManagement taskManagement = new();
 
-           
 
-            taskManagement.AddTask(user, new Task("Finish TaskManagement Project", "12/31 23:59", user.UserID));
+            taskManagement.AddTask(user);
 
-            Console.WriteLine($"The logged in user's userID: {user.UserID}");
+
+            //taskManagement.AddTask(user, new Task("Finish TaskManagement Project", "12/31 23:59", user.UserID));
+
+            //Console.WriteLine($"The logged in user's userID: {user.UserID}");
 
 
             //Console.WriteLine("Password:\n");
