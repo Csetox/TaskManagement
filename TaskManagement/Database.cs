@@ -12,29 +12,64 @@ namespace TaskManagement
 {
     public static class Database
     {
+        /// <summary>
+        /// This is the connectionString used for connecting to the local MySql Database.
+        /// </summary>
         public static string ConnectionString = "server=localhost;user=taskUser;database=taskmanagement;password=admin123;";
-
-        public static void DatabaseQuery()
+        /// <summary>
+        /// Lists the tasks of the given user, in a table.
+        /// </summary>
+        /// <param name="user"></param>
+        public static void ListTasks(User user)
         {
             MySqlConnection connection = new MySqlConnection("server=localhost;user=taskUser;database=taskmanagement;password=admin123;");
 
             connection.Open();
 
-            string queryString = "SELECT * FROM Users";
+            string queryString = $"SELECT Title,DueDate FROM Tasks WHERE UserID = {user.UserID}";
 
             MySqlCommand command = new MySqlCommand(queryString, connection);
 
-            using(MySqlDataReader reader = command.ExecuteReader())
+            int titleWidth = 0;
+            int dueDateWidth = 0;
+
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+
+
+                // Calculate column widths based on data
+                while (reader.Read())
+                {
+                    string title = reader.GetString(0);
+                    DateTime dueDate = reader.GetDateTime(1);
+
+                    if (title.Length > titleWidth)
+                        titleWidth = title.Length;
+
+                    string dueDateStr = dueDate.ToString("yyyy-MM-dd"); // Format the date as needed
+                    if (dueDateStr.Length > dueDateWidth)
+                        dueDateWidth = dueDateStr.Length;
+                }
+
+                reader.Close();
+
+                // Print the header
+                Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth));
+                Console.WriteLine(new string('-', titleWidth + dueDateWidth + 3));
+            }
+            // Re-execute the query to get the data
+            using (MySqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Console.WriteLine(reader.GetString(i));
-                    }
-                }
-            }
+                    string title = reader.GetString(0);
+                    DateTime dueDate = reader.GetDateTime(1);
 
+                    string dueDateStr = dueDate.ToString("yyyy-MM-dd");
+                    Console.WriteLine(title.PadRight(titleWidth) + " | " + dueDateStr.PadRight(dueDateWidth));
+                }
+
+            }
         }
         /// <summary>
         /// Registers the user and the password into the database.
@@ -90,7 +125,6 @@ namespace TaskManagement
 
                 using(MySqlCommand command = new MySqlCommand(query, connection))
                 {
-
                     connection.Open();
 
                     var userIDsFromDatabase = command.ExecuteReader();
@@ -109,6 +143,12 @@ namespace TaskManagement
 
             return false;
         }
+        /// <summary>
+        /// Retrieves the password for the given user, and compares it.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>True if the passwords match, otherwise false.</returns>
         public static bool CheckPasswordForUser(string username, string password)
         {
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
