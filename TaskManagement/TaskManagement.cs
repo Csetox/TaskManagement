@@ -73,21 +73,33 @@ namespace TaskManagement
 
         public static void Run()
         {
+
+            User user = Login.LoginProcess();
+
+            TaskManagement taskManagement = new();
+
+           
+
+            taskManagement.AddTask(user, new Task("Finish TaskManagement Project", "12/31 23:59", user.UserID));
+
+            Console.WriteLine($"The logged in user's userID: {user.UserID}");
+
+
             //Console.WriteLine("Password:\n");
             // string passwd = Console.ReadLine();
 
             //Login.GetUsername("foo");
 
 
-            User Csetox = new User();
-            User Foo = new User();
+            //User Csetox = new User();
+            // User Foo = new User();
 
-            TaskManagement TaskManager = new();
+            //TaskManagement TaskManager = new();
 
             //TaskManager.AddTask(Csetox, new Task("foo", "10/23/2024 16:20",0));
             //TaskManager.AddTask(Csetox, new Task("bar", "10/23 16:20"));
 
-           // TaskManager.SortTasks(Csetox, SortTypes.ByDueDate);
+            // TaskManager.SortTasks(Csetox, SortTypes.ByDueDate);
             // Logic.AddTask(Foo, new Task("10/23/2024 16:20", "foo", Priority.Medium, Status.Pending));
             //Logic.AddTask(Foo, new Task("10/23/2024 16:20", "bar", Priority.Medium, Status.Pending));
 
@@ -98,7 +110,7 @@ namespace TaskManagement
 
             //MySqlConnection Connection = new MySqlConnection("server=TaskManagement;user=root;database=taskmanagement;port=3306;password=admin123");
 
-           //DatabaseConnection.DatabaseQuery();
+            //DatabaseConnection.DatabaseQuery();
 
 
         }
