@@ -11,6 +11,11 @@ namespace TaskManagement
 {
     public static class Login
     {
+        /// <summary>
+        /// Handles the full login process. 
+        /// Checks if the users has an account, do the user want to make an account, and if the user has an account, logs them in.
+        /// </summary>
+        /// <returns>The object of the logged in user.</returns>
         public static User LoginProcess()
         {
             User loggedInUser = null;
@@ -43,12 +48,12 @@ namespace TaskManagement
                 loggedInUser = new User(usernameAttempt, Database.GetUserID(usernameAttempt));
             }
 
-            //Console.WriteLine($"The loggedInUser's username: {loggedInUser.Username}");
-            //Console.WriteLine($"The loggedInUser's UserID: {loggedInUser.UserID}");
-
-
             return loggedInUser;
         }
+        /// <summary>
+        /// Handles the registering part. Checks if the username is taken, or the passwords match.
+        /// If everything is good, it registers the account via the Database.RegisterNewUser() function.
+        /// </summary>
         static void Register()
         {
             Console.WriteLine("The username you want to use: ");
@@ -75,7 +80,6 @@ namespace TaskManagement
                 }
             }
 
-
             if (password1 != password2)
             {
                 Console.WriteLine("The passwords don't match.\nDo you want to try again? (y/n)");
@@ -88,9 +92,15 @@ namespace TaskManagement
                 }
             }
 
+            //It's true if the registration was successful.
             bool foo =Database.RegisterNewUser(username, password1);
 
         }
+        /// <summary>
+        /// Checks if the given username is already in the database.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns>True, if the usernames is already taken, otherwise false.</returns>
         public static bool DoesUserExists(string username)
         {
             List<string> usernames = new();
@@ -114,12 +124,17 @@ namespace TaskManagement
                 command.Dispose();
             }
 
-            foreach (string item in usernames)
-            {
-                if (item == username) return true;
-            }
+            if (usernames.Contains(username)) return true;
+
             return false;
         }
+
+        /// <summary>
+        /// Validates the username and password combo. Checks if the username exists in the database, and checks if the password is the one used by that username.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns>False if the username doesn't exists in the database, or the password is incorrect. Otherwise true.</returns>
         private static bool ValidateUsernameAndPassword(string username, string password)
         {
             if (!DoesUserExists(username)) {/* throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!");*/ return false; }
@@ -128,6 +143,12 @@ namespace TaskManagement
 
             return true;
         }
+        /// <summary>
+        /// This function is used when the user is making a decision (y/n).
+        /// Once the key is pressed, no need to press enter.
+        /// Doesn't accept any other key than 'y' and 'n' and the uppercase parts of them.
+        /// </summary>
+        /// <returns>True if the user pressed 'y'. False if the user pressed 'n'.</returns>
         private static bool UserInputYesOrNo()
         {
             ConsoleKeyInfo consoleKey;
@@ -176,6 +197,9 @@ namespace TaskManagement
             while (keyInfo.Key != ConsoleKey.Enter);
             return input;
         }
+        /// <summary>
+        /// Erases the input and certain lines.
+        /// </summary>
         private static void Erase()
         {
             Console.SetCursorPosition(0, Console.CursorTop);
