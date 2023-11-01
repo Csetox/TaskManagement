@@ -32,24 +32,56 @@ namespace TaskManagement
                     Environment.Exit(0);
                 }
                 else Register();
-
             }
 
-            Console.WriteLine("Username: ");
-
-            string usernameAttempt = Console.ReadLine();
-
-            Console.WriteLine("Password: ");
-
-            string passwordAttempt = GetHiddenInput();
-            Console.WriteLine();
-            if (ValidateUsernameAndPassword(usernameAttempt, passwordAttempt))
-            {
-                loggedInUser = new User(usernameAttempt, Database.GetUserID(usernameAttempt));
-            }
+            Authenticate(out loggedInUser);
+            Console.Clear();
 
             return loggedInUser;
         }
+        /// <summary>
+        /// Handles the authenticating process. 
+        /// If an invalid username or password is given, the InvalidLoginCredentialsException is thrown 
+        /// and the user can decide if they want to try logging in again.
+        /// </summary>
+        /// <param name="loggedInUser"></param>
+        private static void Authenticate(out User loggedInUser)
+        {
+            loggedInUser = null;
+            string usernameAttempt;
+            string passwordAttempt;
+
+            Console.WriteLine("Username: ");
+            usernameAttempt = Console.ReadLine();
+
+            Console.WriteLine("Password: ");
+            passwordAttempt = GetHiddenInput();
+
+            Console.WriteLine();
+            
+            try
+            {
+                if (ValidateUsernameAndPassword(usernameAttempt, passwordAttempt))
+                {
+                    loggedInUser = new User(usernameAttempt, Database.GetUserID(usernameAttempt));
+                }
+            }
+            catch (InvalidLoginCredentialsException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Do you want to try again? (y/n)");
+
+                if (UserInputYesOrNo()) Authenticate(out loggedInUser);
+                else
+                {
+                    Console.WriteLine("The app is exiting...");
+                    Environment.Exit(0);
+                }
+            }
+
+        }
+
+
         /// <summary>
         /// Handles the registering part. Checks if the username is taken, or the passwords match.
         /// If everything is good, it registers the account via the Database.RegisterNewUser() function.
@@ -137,9 +169,9 @@ namespace TaskManagement
         /// <returns>False if the username doesn't exists in the database, or the password is incorrect. Otherwise true.</returns>
         private static bool ValidateUsernameAndPassword(string username, string password)
         {
-            if (!DoesUserExists(username)) {/* throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!");*/ return false; }
+            if (!DoesUserExists(username)) { throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!"); return false; }
 
-            if (!Database.CheckPasswordForUser(username, password)) {/* throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!");*/return false; }
+            if (!Database.CheckPasswordForUser(username, password)) { throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!"); return false; }
 
             return true;
         }
