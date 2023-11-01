@@ -68,7 +68,7 @@ namespace TaskManagement
 
             Console.WriteLine(UserID);
 
-            AddTaskToDatabase(title, taskID,DueDate,UserID);
+            Database.AddTaskToDatabase(title, taskID,DueDate,UserID);
 
 
 
@@ -102,8 +102,11 @@ namespace TaskManagement
         { 
             string format1 = "MM/dd/yyyy HH:mm";
             string format2 = "MM/dd HH:mm";
+            string format3 = "MM/dd";
 
             if(HasYearInDueDate(dateInString)) return DateTime.ParseExact(dateInString, format1,CultureInfo.InvariantCulture);
+            if (!HasHourInDate(dateInString)) return DateTime.ParseExact(dateInString, format3, CultureInfo.InvariantCulture);
+
             return DateTime.ParseExact(dateInString, format2, CultureInfo.InvariantCulture);
         }
         static bool HasYearInDueDate(string dateInString)
@@ -116,32 +119,7 @@ namespace TaskManagement
             }
             return countOfSlashes>1;
         }
-
-        private static void AddTaskToDatabase(string title, int taskid,DateTime duedate,int userid)
-        {
-            using (MySqlConnection connection = new MySqlConnection("server=localhost;user=taskUser;database=taskmanagement;password=admin123;"))
-            { 
-                string query = "INSERT INTO tasks (TaskID,Title,DueDate,DateAdded,UserID) VALUES (@taskid,@title,@duedate,@dateadded,@userid)";
-
-                using (MySqlCommand command = new MySqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@taskid", taskid);
-                    command.Parameters.AddWithValue("@title", title);
-                    command.Parameters.AddWithValue("@duedate", duedate);
-                    command.Parameters.AddWithValue("@dateadded", DateTime.Now);
-                    command.Parameters.AddWithValue("@userid", userid);
-
-                    connection.Open();
-
-                    int res = command.ExecuteNonQuery();
-
-                    Console.WriteLine(res);
-
-                }
-
-            }
-
-        }
+        static bool HasHourInDate(string dateInString) => dateInString.Contains(':');
 
     }
 
