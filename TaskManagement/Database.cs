@@ -16,6 +16,7 @@ namespace TaskManagement
         /// This is the connectionString used for connecting to the local MySql Database.
         /// </summary>
         public static string ConnectionString = "server=localhost;user=taskUser;database=taskmanagement;password=admin123;";
+
         /// <summary>
         /// Lists the tasks of the given user, in a table.
         /// </summary>
@@ -26,22 +27,22 @@ namespace TaskManagement
 
             connection.Open();
 
-            string queryString = $"SELECT Title,DueDate FROM Tasks WHERE UserID = {user.UserID}";
+            string queryString = $"SELECT Title,DueDate,TaskID FROM Tasks WHERE UserID = {user.UserID}";
 
             MySqlCommand command = new MySqlCommand(queryString, connection);
 
             int titleWidth = 0;
             int dueDateWidth = 0;
+            int taskIdWidth = 0;
 
             using (MySqlDataReader reader = command.ExecuteReader())
             {
-
-
                 // Calculate column widths based on data
                 while (reader.Read())
                 {
                     string title = reader.GetString(0);
                     DateTime dueDate = reader.GetDateTime(1);
+                    int taskID = Convert.ToInt32(reader.GetString(2));
 
                     if (title.Length > titleWidth)
                         titleWidth = title.Length;
@@ -49,13 +50,18 @@ namespace TaskManagement
                     string dueDateStr = dueDate.ToString("yyyy-MM-dd"); // Format the date as needed
                     if (dueDateStr.Length > dueDateWidth)
                         dueDateWidth = dueDateStr.Length;
+
+                    string taskIdStr = taskID.ToString();
+                    if (taskIdStr.Length > taskIdWidth)
+                        taskIdWidth = taskIdStr.Length;
+
                 }
 
                 reader.Close();
 
                 // Print the header
-                Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth));
-                Console.WriteLine(new string('-', titleWidth + dueDateWidth + 3));
+                Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth) + " | " + "Task ID".PadRight(taskIdWidth));
+                Console.WriteLine(new string('-', titleWidth + dueDateWidth + taskIdWidth + 13));
             }
             // Re-execute the query to get the data
             using (MySqlDataReader reader = command.ExecuteReader())
@@ -64,9 +70,11 @@ namespace TaskManagement
                 {
                     string title = reader.GetString(0);
                     DateTime dueDate = reader.GetDateTime(1);
+                    int taskid = reader.GetInt32(2);
+                    string taskID = taskid.ToString();
 
                     string dueDateStr = dueDate.ToString("yyyy-MM-dd");
-                    Console.WriteLine(title.PadRight(titleWidth) + " | " + dueDateStr.PadRight(dueDateWidth));
+                    Console.WriteLine(title.PadRight(titleWidth) + " | " + dueDateStr.PadRight(dueDateWidth) + " | " + taskID.PadRight(taskIdWidth));
                 }
 
             }
@@ -222,5 +230,59 @@ namespace TaskManagement
             }
 
         }
+
+        public static void DeleteTask(User user, int taskid)
+        {
+            using(MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"DELETE FROM tasks WHERE TaskID = {taskid} AND UserID = {user.UserID};";
+
+                using(MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+
+                    command.ExecuteNonQuery();
+
+                }
+            }
+        }
+
+        public static void GetDescription(User user, int taskid)
+        {
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT Description FROM tasks WHERE TaskID = {taskid} AND UserID = {user.UserID};";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+
+                    var desc = command.ExecuteScalar();
+
+                    Console.WriteLine(desc);
+
+                }
+            }
+
+        }
+
+        public static void AddDescription(User user, string description, int taskid)
+        {
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"UPDATE tasks SET Descripton = {description} WHERE TaskID = {taskid} AND UserID = {user.UserID};";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+
+                    command.ExecuteNonQuery();
+
+                }
+            }
+
+        }
+
+
     }
 }
