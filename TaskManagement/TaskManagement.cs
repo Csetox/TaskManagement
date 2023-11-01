@@ -8,15 +8,16 @@ using MySql.Data.MySqlClient;
 
 namespace TaskManagement
 {
-    public class TaskManagement
+    public static class TaskManagement
     {
         /// <summary>
         /// Handles the user input of AddTask.
         /// Gets the task's name, due date and other things.
+        /// The constructor of Task has the AddTaskToDatabase() function, and it automatically adds it to the database.
         /// </summary>
         /// <param name="user"></param>
         /// <param name="task"></param>
-        public void AddTask(User user)
+        public static void AddTask(this User user)
         {
             string nameOfTask;
             string dueDateString;
@@ -24,114 +25,95 @@ namespace TaskManagement
 
             nameOfTask = Console.ReadLine();
 
-            Console.WriteLine("When is it due? (MM/dd/yyyy HH:mm) / (MM/dd HH:mm)");
+
+            //If the year is not given it automatically sets the year to the current year even if the date is in the past.
+            //TODO: fix this edge case.
+            Console.WriteLine("When is it due? (MM/dd/yyyy HH:mm) / (MM/dd HH:mm) / (MM/dd)");
 
             dueDateString = Console.ReadLine();
 
             new Task(nameOfTask, dueDateString, user.UserID);
           //  user.Tasks.Add(task);
         }
-
-        /// <summary>
-        /// Deletes a task identifying by the task's unique taskID
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="taskID"></param>
-        public void DeleteTask(User user, int taskID)
+        
+        private static void DeleteTask(this User user)
         {
-            Task? taskToRemove = user.Tasks.FirstOrDefault(task => task.taskID == taskID);
+            int taskID;
 
-            if (taskToRemove is not null) user.Tasks.Remove(taskToRemove);
-        }
-        /// <summary>
-        /// Deletes a task identifying by the task's name. The name may not be unique.
-        /// If that happens it throws MoreThanOneArgumentException.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="taskName"></param>
-        /// <exception cref="MoreThanOneArgumentException"></exception>
-        public void DeleteTask(User user, string taskName)
-        {
-            var taskToRemove = user.Tasks.Where(task => task.Title == taskName);
+            Console.WriteLine("Which task do you want to delete? Write the TaskID.");
+            taskID = Convert.ToInt32(Console.ReadLine());
 
-            if (taskToRemove is not null)
-            {
-                if (taskToRemove.ToList().Count > 1) throw new MoreThanOneArgumentException("You have more than one matching tasks!");
-                else user.Tasks.Remove(taskToRemove.First());
-            }
+            Database.DeleteTask(user, taskID);
         }
 
         /// <summary>
         /// Lists the tasks of the given user.
         /// </summary>
         /// <param name="user"></param>
-        public void ListTasks(User user)
+        public static void ListTasks(this User user)
         {
-            foreach (var item in user.Tasks) Console.WriteLine(item.Title + " " + item.DueDate);
+            Database.ListTasks(user);
         }
         /// <summary>
-        /// Sorts the Tasks by their properties using the IComparer<!> interface
+        /// Sorts the Tasks by their properties using the IComparer<> interface
         /// </summary>
         /// <param name="user"></param>
         /// <param name="type"></param>
-        public void SortTasks(User user, SortTypes type)
+        public static void SortTasks(User user, SortTypes type)
         {
             user.Tasks.Sort(new TaskComparer(type));
 
             foreach (var item in user.Tasks) Console.WriteLine(item.Title);
         }
-
-        public void AddDescription(User user, int? taskID, string? taskName, string desc)
+        private static void GetDescription(User user, int taskID)
         {
-            user.Tasks[user.Tasks.FindIndex(task => task.taskID == taskID || task.Title == taskName)].Description = desc;
+            Database.GetDescription(user, taskID);
+        }
+
+        public static void AddDescription(this User user, int taskID, string desc)
+        {
+            Database.AddDescription(user, desc, taskID);
         }
 
 
 
         public static void Run()
-        {
-
+        { 
             User user = Login.LoginProcess();
+            MainMenu(user);
 
-            TaskManagement taskManagement = new();
+        }
 
+        private static void MainMenu(User user)
+        {
+            ConsoleKeyInfo action;
+            Console.WriteLine("What do you wanna do? \n (1-AddTask\n2-DeleteTask\n3-ListTask\n4-Exit)");
 
-            taskManagement.AddTask(user);
+            do
+            {
+                action = Console.ReadKey(intercept: true);
 
+                if(action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4') Console.WriteLine("Press one of the 4 keys!");
+            } while (action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4');
 
-            //taskManagement.AddTask(user, new Task("Finish TaskManagement Project", "12/31 23:59", user.UserID));
+            switch (action.KeyChar)
+            {
+                case '1': 
+                    user.AddTask(); 
+                    break;
+                case '2': 
+                    user.DeleteTask();
+                    break;
+                case '3': 
+                    user.ListTasks();
+                    break;
+                case '4': 
+                    Console.WriteLine("The app is exiting...");
+                    Environment.Exit(0);
+                    break;
+            }
 
-            //Console.WriteLine($"The logged in user's userID: {user.UserID}");
-
-
-            //Console.WriteLine("Password:\n");
-            // string passwd = Console.ReadLine();
-
-            //Login.GetUsername("foo");
-
-
-            //User Csetox = new User();
-            // User Foo = new User();
-
-            //TaskManagement TaskManager = new();
-
-            //TaskManager.AddTask(Csetox, new Task("foo", "10/23/2024 16:20",0));
-            //TaskManager.AddTask(Csetox, new Task("bar", "10/23 16:20"));
-
-            // TaskManager.SortTasks(Csetox, SortTypes.ByDueDate);
-            // Logic.AddTask(Foo, new Task("10/23/2024 16:20", "foo", Priority.Medium, Status.Pending));
-            //Logic.AddTask(Foo, new Task("10/23/2024 16:20", "bar", Priority.Medium, Status.Pending));
-
-            //TaskManager.ListTasks(Csetox);
-            //Console.WriteLine();
-
-            //TaskManager.SortTasks(Csetox, SortTypes.ByName);
-
-            //MySqlConnection Connection = new MySqlConnection("server=TaskManagement;user=root;database=taskmanagement;port=3306;password=admin123");
-
-            //DatabaseConnection.DatabaseQuery();
-
-
+            MainMenu(user);
         }
 
 
