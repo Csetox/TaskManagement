@@ -102,9 +102,15 @@ namespace TaskManagement
 
             if (DoesUserExists(username))
             {
-                Console.WriteLine("Username already taken.\nDo you want to try again? (y/n)");
+                Console.WriteLine("\nUsername already taken.\nDo you want to try again? (y/n)");
 
-                if (UserInputYesOrNo()) Register();
+                if (UserInputYesOrNo())
+                {
+                    username = null;
+                    password1 = null;
+                    password2 = null;
+                    Register();
+                }
                 else
                 {
                     Console.WriteLine("The app is exiting...");
@@ -114,9 +120,15 @@ namespace TaskManagement
 
             if (password1 != password2)
             {
-                Console.WriteLine("The passwords don't match.\nDo you want to try again? (y/n)");
+                Console.WriteLine("\nThe passwords don't match.\nDo you want to try again? (y/n)");
 
-                if (UserInputYesOrNo()) Register();
+                if (UserInputYesOrNo())
+                {
+                    username = null;
+                    password1 = null;
+                    password2 = null;
+                    Register();
+                }
                 else
                 {
                     Console.WriteLine("The app is exiting...");
@@ -125,7 +137,7 @@ namespace TaskManagement
             }
 
             //It's true if the registration was successful.
-            bool foo =Database.RegisterNewUser(username, password1);
+            bool foo = Database.RegisterNewUser(username, password1);
 
         }
         /// <summary>
@@ -155,7 +167,7 @@ namespace TaskManagement
                 usernamesFromDatabase.Close();
                 command.Dispose();
             }
-
+            foreach(string item in usernames) Console.WriteLine(item);
             if (usernames.Contains(username)) return true;
 
             return false;
