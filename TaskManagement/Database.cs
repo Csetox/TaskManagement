@@ -34,7 +34,6 @@ namespace TaskManagement
             int titleWidth = 0;
             int dueDateWidth = 0;
             int taskIdWidth = 0;
-
             using (MySqlDataReader reader = command.ExecuteReader())
             {
                 // Calculate column widths based on data
@@ -78,6 +77,7 @@ namespace TaskManagement
                 }
 
             }
+            Console.WriteLine();
         }
         /// <summary>
         /// Registers the user and the password into the database.
@@ -221,9 +221,10 @@ namespace TaskManagement
 
                     connection.Open();
 
-                    int res = command.ExecuteNonQuery();
+                    int rowsAffected = command.ExecuteNonQuery();
 
-                    Console.WriteLine(res);
+                    Console.Clear();
+                    if(rowsAffected==1) Console.WriteLine("Task successfully added.\n");
 
                 }
 
@@ -233,6 +234,15 @@ namespace TaskManagement
 
         public static void DeleteTask(User user, int taskid)
         {
+
+            List<int> allTaskIDsForUser = GetTaskIDs(user);
+
+            if (!allTaskIDsForUser.Contains(taskid))
+            {
+                Console.WriteLine("Incorrect TaskID. User doesn't have a task with this TaskID.\n");
+                return;
+            }
+
             using(MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
                 string query = $"DELETE FROM tasks WHERE TaskID = {taskid} AND UserID = {user.UserID};";
@@ -241,8 +251,10 @@ namespace TaskManagement
                 {
                     connection.Open();
 
-                    command.ExecuteNonQuery();
-
+                    int rowsAffected = command.ExecuteNonQuery();
+                    Console.Clear();
+                    if(rowsAffected == 1) Console.WriteLine("Task successfully deleted. \n");
+                    else Console.WriteLine("Task deletion unsuccessful.");
                 }
             }
         }
@@ -259,9 +271,10 @@ namespace TaskManagement
 
                     var desc = command.ExecuteScalar();
 
-                    Console.WriteLine(desc);
+                    Console.WriteLine($"The description:\n{desc}");
 
                 }
+                Console.WriteLine();
             }
 
         }
@@ -270,7 +283,7 @@ namespace TaskManagement
         {
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
-                string query = $"UPDATE tasks SET Descripton = {description} WHERE TaskID = {taskid} AND UserID = {user.UserID};";
+                string query = $"UPDATE tasks SET Description = \"{description}\" WHERE TaskID = {taskid} AND UserID = {user.UserID};";
 
                 using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
@@ -281,6 +294,37 @@ namespace TaskManagement
                 }
             }
 
+        }
+        /// <summary>
+        /// Gets all the taskIDs for a given user.
+        /// Used for deleting the tasks.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public static List<int> GetTaskIDs(User user)
+        {
+            List<int> taskIDs = new();
+
+            using (MySqlConnection connection = new MySqlConnection(Database.ConnectionString))
+            {
+                connection.Open();
+                string query = $"SELECT TaskID FROM Tasks WHERE UserID = {user.UserID};";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+
+                    using (MySqlDataReader taskIdFromDatabase = command.ExecuteReader())
+                    {
+
+                        if (taskIdFromDatabase.HasRows)
+                        {
+                            while (taskIdFromDatabase.Read()) taskIDs.Add(taskIdFromDatabase.GetInt32(0));
+                        }
+                    }
+                }
+            }
+
+            return taskIDs;
         }
 
 
