@@ -12,6 +12,7 @@ namespace TaskManagement
         static void Main(string[] args)
         {
 
+            //Database.ListTasks();
 
             TaskManagement.Run();
 

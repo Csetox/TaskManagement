@@ -65,12 +65,7 @@ namespace TaskManagement
 
             nextTaskID++;
 
-
-            Console.WriteLine(UserID);
-
             Database.AddTaskToDatabase(title, taskID,DueDate,UserID);
-
-
 
         }
         public Task(string title, string dueDate, Priority priorityLevel)
