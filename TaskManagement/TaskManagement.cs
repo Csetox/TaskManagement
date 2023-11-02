@@ -39,6 +39,7 @@ namespace TaskManagement
         private static void DeleteTask(this User user)
         {
             int taskID;
+            Database.ListTasks(user);
 
             Console.WriteLine("Which task do you want to delete? Write the TaskID.");
             taskID = Convert.ToInt32(Console.ReadLine());
@@ -65,17 +66,33 @@ namespace TaskManagement
 
             foreach (var item in user.Tasks) Console.WriteLine(item.Title);
         }
-        private static void GetDescription(User user, int taskID)
+        private static void GetDescription(this User user)
         {
+            int taskID;
+            Database.ListTasks(user);
+            Console.WriteLine("Which task's description do you want to read? Write the TaskID.");
+            taskID = Convert.ToInt32(Console.ReadLine());
+
             Database.GetDescription(user, taskID);
         }
 
-        public static void AddDescription(this User user, int taskID, string desc)
+        public static void AddDescription(this User user)
         {
+            int taskID;
+            string desc;
+
+            Database.ListTasks(user);
+
+            Console.WriteLine("To which task do you want to add a description? Write the TaskID.");
+
+            taskID = Convert.ToInt32(Console.ReadLine());
+
+            Console.WriteLine("Write the description.");
+
+            desc = Console.ReadLine();
+
             Database.AddDescription(user, desc, taskID);
         }
-
-
 
         public static void Run()
         { 
@@ -87,15 +104,17 @@ namespace TaskManagement
         private static void MainMenu(User user)
         {
             ConsoleKeyInfo action;
-            Console.WriteLine("What do you wanna do? \n (1-AddTask\n2-DeleteTask\n3-ListTask\n4-Exit)");
+            Console.WriteLine("What do you wanna do? \n1 - Add Task\n2 - Delete Task\n3 - List Task\n4 - Read the description of a task\n5 - Add Description to task\n6 - Exit");
 
             do
             {
                 action = Console.ReadKey(intercept: true);
 
-                if(action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4') Console.WriteLine("Press one of the 4 keys!");
-            } while (action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4');
+                if(action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4' && action.KeyChar != '5' && action.KeyChar != '6') Console.WriteLine("Press one of the 6 keys!");
+            } while (action.KeyChar != '1' && action.KeyChar != '2' && action.KeyChar != '3' && action.KeyChar != '4' && action.KeyChar != '5' && action.KeyChar != '6');
 
+            Console.Clear();
+            
             switch (action.KeyChar)
             {
                 case '1': 
@@ -107,7 +126,12 @@ namespace TaskManagement
                 case '3': 
                     user.ListTasks();
                     break;
-                case '4': 
+                case '4':
+                    user.GetDescription();
+                    break;
+                case '5':
+                    user.AddDescription(); break;
+                case '6':
                     Console.WriteLine("The app is exiting...");
                     Environment.Exit(0);
                     break;
