@@ -40,8 +40,6 @@ namespace TaskManagement
 
             return CryptographicOperations.FixedTimeEquals(inputHash, hash);
 
-
-
         }
 
     }
