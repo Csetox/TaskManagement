@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using MySql.Data.MySqlClient;
+using System.Security.Cryptography;
+using Org.BouncyCastle.Security;
 
 namespace TaskManagement
 {
@@ -88,90 +90,66 @@ namespace TaskManagement
         /// </summary>
         static void Register()
         {
+            string username;
+            string password1;
+            string password2;
+
+
             Console.WriteLine("The username you want to use: ");
 
-            string username = Console.ReadLine();
+            username = Console.ReadLine();
 
             Console.WriteLine("The password you want to use: ");
 
-            string password1 = GetHiddenInput();
+            password1 = GetHiddenInput();
             Console.WriteLine();
 
             Console.WriteLine("Repeat the password: ");
-            string password2 = GetHiddenInput();
+            password2 = GetHiddenInput();
+            Console.WriteLine();
 
-            if (DoesUserExists(username))
+            //If the database already contains the username that username is taken.
+            if (Database.DoesUserExists(username))
             {
-                Console.WriteLine("\nUsername already taken.\nDo you want to try again? (y/n)");
+                Console.WriteLine("Username already taken.\nDo you want to try again? (y/n)");
 
                 if (UserInputYesOrNo())
                 {
-                    username = null;
-                    password1 = null;
-                    password2 = null;
                     Register();
+                    return;
                 }
                 else
                 {
                     Console.WriteLine("The app is exiting...");
                     Environment.Exit(0);
+                    return;
                 }
             }
 
+            //Checks if the passwords match, if they don't they have the opportunity to try again.
             if (password1 != password2)
             {
                 Console.WriteLine("\nThe passwords don't match.\nDo you want to try again? (y/n)");
 
                 if (UserInputYesOrNo())
                 {
-                    username = null;
-                    password1 = null;
-                    password2 = null;
                     Register();
+                    return; //If these returns are not here the Database.RegisterNewUser method gets called, and registers the user with incorrect username and/or password.
                 }
                 else
                 {
                     Console.WriteLine("The app is exiting...");
+                    
                     Environment.Exit(0);
+                    return;
                 }
             }
 
             //It's true if the registration was successful.
-            bool foo = Database.RegisterNewUser(username, password1);
-
+            bool wasRegistrationSuccessful = Database.RegisterNewUser(username, password1);
+            Console.WriteLine(wasRegistrationSuccessful);
         }
-        /// <summary>
-        /// Checks if the given username is already in the database.
-        /// </summary>
-        /// <param name="username"></param>
-        /// <returns>True, if the usernames is already taken, otherwise false.</returns>
-        public static bool DoesUserExists(string username)
-        {
-            List<string> usernames = new();
 
-            using (MySqlConnection connection = new MySqlConnection(Database.ConnectionString))
-            {
-                connection.Open();
-                string query = "SELECT Username FROM Users";
-
-                MySqlCommand command = new MySqlCommand(query, connection);
-
-                var usernamesFromDatabase = command.ExecuteReader();
-
-                if (usernamesFromDatabase.HasRows)
-                {
-                    while (usernamesFromDatabase.Read())
-                        usernames.Add(usernamesFromDatabase.GetString(0));
-                }
-
-                usernamesFromDatabase.Close();
-                command.Dispose();
-            }
-            foreach(string item in usernames) Console.WriteLine(item);
-            if (usernames.Contains(username)) return true;
-
-            return false;
-        }
 
         /// <summary>
         /// Validates the username and password combo. Checks if the username exists in the database, and checks if the password is the one used by that username.
@@ -181,7 +159,7 @@ namespace TaskManagement
         /// <returns>False if the username doesn't exists in the database, or the password is incorrect. Otherwise true.</returns>
         private static bool ValidateUsernameAndPassword(string username, string password)
         {
-            if (!DoesUserExists(username)) { throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!"); return false; }
+            if (!Database.DoesUserExists(username)) { throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!"); return false; }
 
             if (!Database.CheckPasswordForUser(username, password)) { throw new InvalidLoginCredentialsException("Incorrect username and/or password! Try Again!"); return false; }
 

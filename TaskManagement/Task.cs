@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Data;
 using Org.BouncyCastle.Tls;
 using MySql.Data.MySqlClient;
+using System.Text.Json.Serialization;
 
 namespace TaskManagement
 {
@@ -26,17 +27,19 @@ namespace TaskManagement
     public class Task
     {
         public int UserID { get; set; }
-
-        public string Title;
-        public DateTime DueDate;
+        public string Title { get; set; }
+        public DateTime DueDate { get; set; }
+        [JsonIgnore]
         public Priority PriorityLevel;
+        public string _Priority { get; set; }
+        [JsonIgnore]
         public Status Status;
         public string? Description { get; set; }
 
         public int taskID { get; private set; }
         static int nextTaskID = 2;
 
-        public DateTime DateAdded { get; private set; }
+        public DateTime DateAdded { get; set; }
 
         public Task(string title, string dueDate, Priority priorityLevel, Status status)
         {   
@@ -91,6 +94,17 @@ namespace TaskManagement
             DateAdded = DateTime.Now;
 
             nextTaskID++;
+        }
+
+        public Task(int taskid,string title, string description, DateTime duedate, DateTime dateadded, string priority, int userid, bool iscompleted)
+        {
+            taskID = taskid;
+            Title = title;
+            Description = description;
+            DueDate = duedate;
+            DateAdded = dateadded;
+            _Priority = priority;
+            UserID = userid;
         }
 
         static DateTime ConvertStringToDateTime(string dateInString)
