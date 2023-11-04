@@ -131,6 +131,4 @@ namespace TaskManagement
         static bool HasHourInDate(string dateInString) => dateInString.Contains(':');
 
     }
-
-
 }
