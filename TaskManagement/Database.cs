@@ -59,9 +59,20 @@ namespace TaskManagement
                 reader.Close();
 
                 // Print the header
-                Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth) + " | " + "Task ID".PadRight(taskIdWidth));
-                Console.WriteLine(new string('-', titleWidth + dueDateWidth + taskIdWidth + 13));
-            }
+                if (titleWidth < "Title".Length)
+                {
+                    Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth) + " | " + "Task ID".PadRight(taskIdWidth));
+
+                    Console.WriteLine(new string('-', titleWidth + dueDateWidth + taskIdWidth + 26));
+                }
+                else
+                {
+                    Console.WriteLine("Title".PadRight(titleWidth) + " | " + "Due Date".PadRight(dueDateWidth) + " | " + "Task ID".PadRight(taskIdWidth));
+
+                    Console.WriteLine(new string('-', titleWidth + dueDateWidth + taskIdWidth + 13));
+                } 
+                    
+                }
             // Re-execute the query to get the data
             using (MySqlDataReader reader = command.ExecuteReader())
             {
@@ -104,7 +115,7 @@ namespace TaskManagement
                 {
                     command.Parameters.AddWithValue("@userid", userID);
                     command.Parameters.AddWithValue("@username", username);
-                    command.Parameters.AddWithValue("@password", password);
+                    command.Parameters.AddWithValue("@password",PasswordHashing.Hash(password));
 
                     connection.Open();
 
@@ -151,13 +162,46 @@ namespace TaskManagement
 
             return false;
         }
+
+        /// <summary>
+        /// Checks if the given username is already in the database.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns>True, if the usernames is already taken, otherwise false.</returns>
+        public static bool DoesUserExists(string username)
+        {
+            List<string> usernames = new();
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "SELECT Username FROM Users";
+
+                MySqlCommand command = new MySqlCommand(query, connection);
+
+                MySqlDataReader usernamesFromDatabase = command.ExecuteReader();
+
+                if (usernamesFromDatabase.HasRows)
+                {
+                    while (usernamesFromDatabase.Read())
+                        usernames.Add(usernamesFromDatabase.GetString(0));
+                }
+
+                usernamesFromDatabase.Close();
+                command.Dispose();
+            }
+            if (usernames.Contains(username)) return true;
+
+            return false;
+        }
+
         /// <summary>
         /// Retrieves the password for the given user, and compares it.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns>True if the passwords match, otherwise false.</returns>
-        public static bool CheckPasswordForUser(string username, string password)
+        public static bool CheckPasswordForUser(string username, string passwordAttempt)
         {
             using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
@@ -167,9 +211,9 @@ namespace TaskManagement
                 {
                     connection.Open();
 
-                    var passwd = command.ExecuteScalar();
+                    var passwordHashFromDatabase = command.ExecuteScalar();
 
-                    if (passwd.ToString() == password) return true;
+                    if (PasswordHashing.Verify(passwordAttempt,passwordHashFromDatabase.ToString())) return true;
 
                 }
             }
@@ -327,6 +371,39 @@ namespace TaskManagement
             return taskIDs;
         }
 
+        public static List<Task> GetTasksToList(User user)
+        {
+            List<Task> tasks = new();
+
+            using(MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                string query = $"SELECT * FROM Tasks WHERE UserID = {user.UserID};";
+
+                using(MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    connection.Open();
+                    MySqlDataReader reader = command.ExecuteReader();
+
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            int TaskID = reader.GetInt32(0);
+                            string Title = reader.GetString(1);
+                            string? Description = reader.GetString(2);
+                            DateTime DueDate = reader.GetDateTime(3);
+                            DateTime AddedDate = reader.GetDateTime(4);
+                            string Priority = reader.GetString(5);
+                            int UserID = reader.GetInt32(6);
+                            bool IsCompleted = reader.GetBoolean(7);
+
+                            tasks.Add(new Task(TaskID, Title, Description, DueDate, AddedDate, Priority, UserID, IsCompleted));
+                        }
+                    }
+                }
+            }
+            return tasks;
+        }
 
     }
 }
